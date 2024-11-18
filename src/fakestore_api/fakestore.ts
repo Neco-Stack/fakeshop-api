@@ -7,6 +7,7 @@ type TProduct = {
     image: string; 
 }
 const URL = "https://fakestoreapi.com/products";
+let allProducts: TProduct[] = [];
 
 fetch(URL)
     .then((response: Response) => {
@@ -17,11 +18,13 @@ fetch(URL)
         return response.json();
     })
     .then((product: TProduct[]) => {
+        allProducts = product
         console.log(product);
         displayProducts(product)
+        createFilterButtons()
     })
     .catch((error: Error) => {
-        console.error("Fetch Fehler gemeldet", error);
+        console.error("Fetch API Fehler wurde gemeldet", error);
     });
 
 function displayProducts(products: TProduct[]) {
@@ -31,10 +34,34 @@ function displayProducts(products: TProduct[]) {
     products.forEach((product: TProduct) => {
         const productCard = document.createElement("div")
         productCard.innerHTML= `
-            <img src="${product.image} alt= "${product.title}>
+            <img src="${product.image}" alt= "${product.title}">
             <h2>${product.title}</h2>
             <p>${product.price.toFixed(2)}</p>
             `;
             productList.appendChild(productCard)
     })
 }
+
+function createFilterButtons() {
+    const filterContainer = document.getElementById("filter-container");
+    if (!filterContainer) return;
+    const categories = ["all", "electronics", "jewelery", "men's clothing", "women's clothing"];
+    categories.forEach(category => {
+        const button = document.createElement("button");
+        button.textContent = category;
+        button.addEventListener("click", () => filterByCategory(category));
+        filterContainer.appendChild(button)
+    })
+}
+function filterByCategory(category: string){
+    let filteredProducts: TProduct[];
+    if (category === "all"){
+        filteredProducts = allProducts; 
+    } else {
+        filteredProducts = allProducts.filter(product => product.category === category);
+    }
+    displayProducts(filteredProducts)
+}
+
+
+
